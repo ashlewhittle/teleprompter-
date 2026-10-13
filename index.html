@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Prompter">
+  <meta name="theme-color" content="#0f1115">
+  <title>Prompter</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ============ LIBRARY ============ -->
+  <section id="view-library" class="view active">
+    <header class="bar">
+      <h1>Prompter</h1>
+      <button id="btn-new" class="btn primary">+ New</button>
+    </header>
+    <div class="scroll-area">
+      <button id="btn-paste-new" class="card card-action">
+        <span class="card-title">📋 Paste &amp; go</span>
+        <span class="card-sub">Make a script from whatever's on your clipboard</span>
+      </button>
+      <ul id="script-list" class="list"></ul>
+      <p id="empty-library" class="empty">No scripts yet. Tap <b>+ New</b> to jot some ideas.</p>
+    </div>
+  </section>
+
+  <!-- ============ EDITOR ============ -->
+  <section id="view-editor" class="view">
+    <header class="bar">
+      <button id="btn-back" class="btn ghost">‹ Scripts</button>
+      <button id="btn-delete" class="btn ghost danger">Delete</button>
+    </header>
+    <div class="scroll-area editor">
+      <input id="ed-title" class="title-input" placeholder="Untitled clip" autocomplete="off">
+
+      <div class="section-head">
+        <h2>Ideas</h2>
+        <span class="hint">One per line — rough notes are fine</span>
+      </div>
+      <textarea id="ed-ideas" rows="5" placeholder="- hook: why most people get this wrong&#10;- 3 quick tips&#10;- call to action: follow for more"></textarea>
+      <div class="row">
+        <button id="btn-build" class="btn">Ideas → script ↓</button>
+      </div>
+
+      <div class="section-head">
+        <h2>Script</h2>
+        <span id="ed-stats" class="hint"></span>
+      </div>
+      <div class="targets" id="targets">
+        <span class="hint">Target:</span>
+        <button data-secs="15" class="chip">15s</button>
+        <button data-secs="30" class="chip">30s</button>
+        <button data-secs="60" class="chip">60s</button>
+        <button data-secs="90" class="chip">90s</button>
+      </div>
+      <div class="meter"><div id="ed-meter-fill"></div></div>
+      <textarea id="ed-script" rows="10" placeholder="Write or paste what you'll say on camera…"></textarea>
+      <div class="row">
+        <button id="btn-paste" class="btn">Paste</button>
+        <button id="btn-tidy" class="btn">Tidy up</button>
+        <button id="btn-clear" class="btn ghost">Clear</button>
+      </div>
+    </div>
+    <footer class="footer">
+      <button id="btn-go" class="btn primary big">● Film this</button>
+    </footer>
+  </section>
+
+  <!-- ============ PROMPTER / CAMERA ============ -->
+  <section id="view-prompter" class="view dark">
+    <video id="cam" autoplay playsinline muted></video>
+
+    <div id="prompt-panel">
+      <div id="prompt-text"></div>
+      <div id="read-line"></div>
+    </div>
+
+    <div id="countdown" hidden></div>
+    <div id="rec-badge" hidden><span class="dot"></span><span id="rec-time">0:00</span></div>
+    <div id="cam-error" hidden></div>
+
+    <div id="top-controls">
+      <button id="btn-close" class="icon-btn" aria-label="Close">✕</button>
+      <div class="spacer"></div>
+      <button id="btn-flip" class="icon-btn" aria-label="Switch camera">⟲</button>
+      <button id="btn-settings" class="icon-btn" aria-label="Settings">Aa</button>
+    </div>
+
+    <div id="settings-panel" hidden>
+      <label>Text size <span id="val-font"></span>
+        <input id="in-font" type="range" min="20" max="64" step="2">
+      </label>
+      <label>Panel height <span id="val-height"></span>
+        <input id="in-height" type="range" min="25" max="80" step="5">
+      </label>
+      <label>Panel darkness <span id="val-opacity"></span>
+        <input id="in-opacity" type="range" min="0" max="90" step="5">
+      </label>
+      <label class="toggle"><input id="in-mirror" type="checkbox"> Mirror camera preview</label>
+      <label class="toggle"><input id="in-countdown" type="checkbox"> 3-second countdown</label>
+    </div>
+
+    <div id="bottom-controls">
+      <div class="speed">
+        <button id="btn-slower" class="icon-btn" aria-label="Slower">−</button>
+        <div class="speed-val"><span id="val-speed">5</span><small>speed</small></div>
+        <button id="btn-faster" class="icon-btn" aria-label="Faster">+</button>
+      </div>
+      <button id="btn-record" class="rec-btn" aria-label="Record"><span></span></button>
+      <div class="side">
+        <button id="btn-play" class="icon-btn" aria-label="Play or pause scrolling">▶</button>
+        <button id="btn-restart" class="icon-btn" aria-label="Back to top">⤒</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ REVIEW ============ -->
+  <section id="view-review" class="view dark">
+    <video id="review-video" playsinline controls></video>
+    <div class="review-actions">
+      <button id="btn-retake" class="btn">Retake</button>
+      <button id="btn-save" class="btn primary">Save video</button>
+      <button id="btn-done" class="btn">Done</button>
+    </div>
+    <p class="review-hint">On iPhone tap <b>Save video</b>, then choose <b>Save Video</b> in the share sheet to put it in Photos.</p>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>
